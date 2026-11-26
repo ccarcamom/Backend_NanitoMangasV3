@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "http://localhost:5173"
+                allowedMethods: "*"
+                allowedHeaders: "*"
+                maxAge: 3600
+          # /internal/** no tiene ruta: el gateway responde 404.
+          routes:
+            - id: administracion
+              uri: ${ADMIN_URL:http://localhost:8081}
+              predicates:
+                - Path=/auth/**,/api/admin/**,/api/usuarios/**
+            - id: vendedores
+              uri: ${VENDEDORES_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/productos/**
+            - id: clientes
+              uri: ${CLIENTES_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/pedidos/**,/api/memes/**
+
+server:
+  port: ${SERVER_PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET:nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

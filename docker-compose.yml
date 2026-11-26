@@ -1,0 +1,72 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  ms-administracion:
+    build: ./ms-administracion
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/nm_admin
+      JWT_SECRET: ${JWT_SECRET:-nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+      INTERNAL_KEY: ${INTERNAL_KEY:-nanitomangas-dev-internal-key}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  ms-vendedores:
+    build: ./ms-vendedores
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/nm_vendedores
+      JWT_SECRET: ${JWT_SECRET:-nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+      INTERNAL_KEY: ${INTERNAL_KEY:-nanitomangas-dev-internal-key}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  ms-clientes:
+    build: ./ms-clientes
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/nm_clientes
+      JWT_SECRET: ${JWT_SECRET:-nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+      INTERNAL_KEY: ${INTERNAL_KEY:-nanitomangas-dev-internal-key}
+      VENDEDORES_URL: http://ms-vendedores:8082
+    depends_on:
+      mongo:
+        condition: service_healthy
+      ms-vendedores:
+        condition: service_started
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:-nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+      ADMIN_URL: http://ms-administracion:8081
+      VENDEDORES_URL: http://ms-vendedores:8082
+      CLIENTES_URL: http://ms-clientes:8083
+    depends_on:
+      - ms-administracion
+      - ms-vendedores
+      - ms-clientes
+
+volumes:
+  mongo-data:

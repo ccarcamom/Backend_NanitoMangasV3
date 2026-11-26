@@ -1,0 +1,15 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: ms-administracion
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/nm_admin}
+      auto-index-creation: true
+jwt:
+  # Valor por defecto solo para desarrollo; en despliegue usar la variable JWT_SECRET.
+  secret: ${JWT_SECRET:nanitomangas-dev-secret-key-change-me-0123456789abcdef}
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
