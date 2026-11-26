@@ -2,6 +2,14 @@
 
 API Gateway (:8080) más tres servicios Spring Boot sobre MongoDB: `ms-administracion` (:8081, base `nm_admin`), `ms-vendedores` (:8082, `nm_vendedores`) y `ms-clientes` (:8083, `nm_clientes`).
 
+Frontend: [NanitoMangasV3](https://github.com/ccarcamom/NanitoMangasV3). La documentación del proyecto (ERS, manual de usuario, APIs e integración) está en su carpeta [`docs/`](https://github.com/ccarcamom/NanitoMangasV3/tree/main/docs).
+
+## Autores
+
+- Eloy Aspe
+- Cristóbal Cárcamo
+- Tomás Salas
+
 ## Levantar
 
 ```bash
