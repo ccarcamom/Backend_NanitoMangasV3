@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Prueba de humo del backend por el gateway (http://localhost:8080). Requiere `docker compose up -d --build`.
+# Variables: BASE (URL del gateway), HOST (para Swagger) y SKIP_SWAGGER=1 si los puertos 8081-8083 no están accesibles.
 set -u
 BASE="${BASE:-http://localhost:8080}"
 fail=0
@@ -55,6 +56,6 @@ check "admin lista usuarios" 200 "$(code $BASE/api/admin/usuarios -H "Authorizat
 check "admin lista pedidos" 200 "$(code $BASE/api/pedidos -H "Authorization: Bearer $AT")"
 check "admin no se borra" 409 "$(code -X DELETE $BASE/api/admin/usuarios/seed-admin -H "Authorization: Bearer $AT")"
 check "internal no enrutado" 404 "$(code -X POST $BASE/internal/stock/descontar -H 'Content-Type: application/json' -d '[]')"
-for p in 8081 8082 8083; do check "swagger $p" 200 "$(code http://localhost:$p/swagger-ui/index.html)"; done
+[ "${SKIP_SWAGGER:-0}" = "1" ] || for p in 8081 8082 8083; do check "swagger $p" 200 "$(code http://${HOST:-localhost}:$p/swagger-ui/index.html)"; done
 
 [ $fail -eq 0 ] && echo "TODO OK" || { echo "HAY FALLAS"; exit 1; }
